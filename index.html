@@ -1,0 +1,1440 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>学习计划助手｜本地发布包</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2318221c'/%3E%3Cpath d='M18 20h28v28H18z' fill='%23e65f38'/%3E%3Cpath d='M24 29h16M24 36h11' stroke='white' stroke-width='4' stroke-linecap='round'/%3E%3C/svg%3E" />
+    <style>
+      :root {
+        --ink: #18221c;
+        --blue: #18221c;
+        --accent: #e65f38;
+        --accent-soft: #ffe3d8;
+        --leaf: #2f7a55;
+        --bg: #f2f2ed;
+        --paper: #fffcf6;
+        --line: #dfdfd5;
+        --muted: #6a746c;
+        --ok: #097b52;
+        --warn: #a74d00;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.55 ui-rounded, system-ui,
+          -apple-system,
+          "PingFang SC",
+          "Microsoft YaHei",
+          sans-serif;
+      }
+      button,
+      input,
+      select,
+      textarea {
+        font: inherit;
+      }
+      button {
+        cursor: pointer;
+        border: 0;
+        border-radius: 8px;
+        padding: 10px 14px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 700;
+      }
+      button.secondary {
+        background: #fff;
+        color: var(--ink);
+        border: 1px solid var(--line);
+      }
+      button.warn {
+        background: #a74d00;
+      }
+      .wrap {
+        max-width: 1120px;
+        margin: auto;
+        padding: 18px;
+      }
+      .top {
+        background: rgba(255, 252, 246, .92);
+        backdrop-filter: blur(14px);
+        border-bottom: 1px solid var(--line);
+        position: sticky;
+        top: 0;
+        z-index: 3;
+      }
+      .top .wrap {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+      .brand {
+        font-weight: 900;
+        font-size: 17px;
+        letter-spacing: 0;
+      }
+      .tag {
+        font-size: 12px;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: var(--accent-soft);
+        color: #9c3419;
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        gap: 16px;
+      }
+      .card {
+        background: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 18px;
+        margin: 16px 0;
+      }
+      .card h2,
+      .card h3 {
+        margin: 0 0 10px;
+      }
+      .row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .field {
+        display: grid;
+        gap: 5px;
+        flex: 1;
+        min-width: 150px;
+      }
+      .field input,
+      .field select,
+      .field textarea {
+        width: 100%;
+        padding: 9px;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        background: #fff;
+        color: var(--ink);
+      }
+      .notice {
+        background: #fff8dd;
+        border-left: 4px solid #e6a700;
+        padding: 10px;
+        border-radius: 7px;
+        color: #714c00;
+      }
+      .guide {
+        background: #edf4ff;
+        border: 1px solid #cfe0fa;
+        border-radius: 12px;
+        padding: 14px;
+        margin: 14px 0;
+      }
+      .app-nav {
+        display: flex; gap: 2px; padding: 0; border: 0; background: transparent;
+      }
+      .app-nav button {
+        color: var(--muted);
+        background: transparent;
+        padding: 8px 10px;
+        font-size: 13px;
+        font-weight: 700;
+      }
+      .app-nav button.active {
+        color: var(--ink);
+        background: #e9ebe3;
+      }
+      .screen[hidden] { display: none !important; }
+      .hero {
+        padding: 24px 0 14px;
+      }
+      .hero h1 {
+        max-width: 700px;
+        font-size: 34px;
+        line-height: 1.18;
+        margin: 0 0 10px;
+        letter-spacing: 0;
+      }
+      .hero p { max-width: 650px; margin: 0; color: var(--muted); }
+      .today-layout { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr); gap: 16px; }
+      .focus-card { border: 0; background: var(--ink); color: #fff; padding: 22px; }
+      .focus-card .small, .focus-card .pill { color: #d9e1d8; }
+      .focus-card .task { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.14); }
+      .focus-card .task h3 { color: #fff; }
+      .focus-card .task .pill { background: rgba(255,255,255,.12); }
+      .focus-card button { background: #fff; color: var(--ink); }
+      .focus-card button.secondary { background: transparent; color: #fff; border-color: rgba(255,255,255,.35); }
+      .context-card { background: #e6eee5; border: 0; }
+      .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+      .section-head h2 { margin: 0; }
+      .stepper { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
+      .stepper div { padding: 10px; border: 1px solid var(--line); border-radius: 7px; color: var(--muted); font-size: 13px; }
+      .stepper .current { color: var(--ink); border-color: var(--ink); background: #fff; font-weight: 700; }
+      .template-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 12px 0; }
+      .template-card { text-align: left; padding: 14px; background: #fff; color: var(--ink); border: 1px solid var(--line); }
+      .template-card:hover, .template-card.selected { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); }
+      .template-card strong, .template-card span { display: block; }
+      .template-card span { color: var(--muted); font-size: 12px; font-weight: 400; margin-top: 3px; }
+      .onboarding { border: 1px solid var(--line); background: #fff; padding: 20px; border-radius: 8px; max-width: 760px; }
+      .onboarding h2 { margin: 0 0 6px; font-size: 24px; }
+      .onboarding .row { margin-top: 16px; }
+      .utility-note { margin: 12px 0; padding: 12px; border-left: 3px solid var(--accent); background: #eff6ff; color: #1e3a5f; }
+      .notice { display: none; }
+      .today-rhythm { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; padding: 18px 20px; border-radius: 14px; background: #e6eee5; margin: 0 0 6px; }
+      .today-rhythm .eyebrow { color: var(--leaf); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
+      .today-rhythm strong { display: block; font-size: 22px; margin-top: 2px; }
+      .progress-ring { width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center; background: conic-gradient(var(--leaf) var(--progress, 0%), #cbd8cb 0); }
+      .progress-ring span { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: #e6eee5; font-weight: 800; font-size: 12px; }
+      .empty { background: #fff8ef; border: 1px dashed #e3b9a7; border-radius: 10px; padding: 18px; }
+      .empty strong { font-size: 17px; display: block; }
+      .task { border-radius: 12px; border-left-width: 4px; box-shadow: none; }
+      .pill { border-radius: 6px; background: #eceee7; }
+      details { margin: 12px 0; border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; background: #f8f8f3; }
+      summary { cursor: pointer; font-weight: 700; color: var(--muted); }
+      details[open] summary { margin-bottom: 10px; }
+      .resource-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 14px; }
+      .resource-item { border: 1px solid var(--line); background: #f8f8f3; padding: 13px; border-radius: 10px; min-width: 0; }
+      .resource-item strong, .resource-item span { display: block; overflow-wrap: anywhere; }
+      .resource-item span { color: var(--muted); font-size: 12px; margin: 4px 0 10px; }
+      .resource-item button { padding: 5px 8px; font-size: 12px; }
+      .quick-capture { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 8px; align-items: end; }
+      .quick-capture input, .quick-capture select { min-height: 44px; }
+      .duration-picks { display: flex; gap: 6px; flex-wrap: wrap; margin: 10px 0 16px; }
+      .duration-picks button { background: #fff; color: var(--ink); border: 1px solid var(--line); min-width: 62px; }
+      .duration-picks button.selected { background: var(--ink); color: #fff; border-color: var(--ink); }
+      .simple-setup { max-width: 680px; margin: 0 auto; }
+      .simple-setup .card { padding: 22px; }
+      .simple-setup h2 { font-size: 18px; margin-top: 0; }
+      .bottom-nav { display: none; }
+      .guide ol {
+        margin: 8px 0 0;
+        padding-left: 20px;
+      }
+      .quick-picks {
+        display: flex;
+        gap: 7px;
+        flex-wrap: wrap;
+        margin: 8px 0 2px;
+      }
+      .quick-picks button {
+        width: auto;
+        padding: 6px 10px;
+        font-size: 13px;
+      }
+      .starter {
+        background: #f8fafc;
+        border: 1px dashed #9fb5d3;
+        border-radius: 10px;
+        padding: 12px;
+        margin-top: 12px;
+      }
+      .recognition {
+        min-height: 20px;
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .small {
+        font-size: 13px;
+        color: var(--muted);
+      }
+      .task {
+        border-left: 5px solid #64748b;
+        padding: 14px;
+        margin: 10px 0;
+        background: #fff;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+      }
+      .task.high {
+        border-left-color: #c2410c;
+      }
+      .task.medium {
+        border-left-color: #2563eb;
+      }
+      .task.low {
+        border-left-color: #0f766e;
+      }
+      .task.done {
+        opacity: 0.62;
+      }
+      .task h3 {
+        font-size: 16px;
+        margin: 0 0 4px;
+      }
+      .task p {
+        margin: 5px 0;
+        overflow-wrap: anywhere;
+      }
+      .pill {
+        display: inline-block;
+        padding: 2px 8px;
+        border-radius: 20px;
+        background: #eef2f7;
+        font-size: 12px;
+        margin-right: 4px;
+        overflow-wrap: anywhere;
+      }
+      .pill.primary {
+        background: #dbeafe;
+        color: #174ea6;
+      }
+      .pill.secondary {
+        background: #ede9fe;
+        color: #5b21b6;
+      }
+      .pill.paused {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .empty {
+        text-align: center;
+        padding: 24px;
+        background: #fff;
+        border: 1px dashed #b9c7db;
+        border-radius: 12px;
+        color: var(--muted);
+      }
+      dialog {
+        border: 0;
+        border-radius: 14px;
+        max-width: 620px;
+        width: calc(100% - 24px);
+        box-shadow: 0 20px 60px #0004;
+      }
+      dialog::backdrop {
+        background: #10204055;
+      }
+      .hidden {
+        display: none !important;
+      }
+      #toast {
+        position: fixed;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #15213b;
+        color: #fff;
+        padding: 10px 16px;
+        border-radius: 9px;
+        z-index: 5;
+      }
+      .history li {
+        margin: 6px 0;
+      }
+      @media (max-width: 768px) {
+        .grid {
+          grid-template-columns: 1fr;
+        }
+        .wrap {
+          padding: 12px;
+        }
+        .top .wrap {
+          align-items: flex-start;
+        }
+        .top .row {
+          justify-content: flex-end;
+        }
+        .card {
+          padding: 14px;
+          margin: 12px 0;
+        }
+        .today-layout { grid-template-columns: 1fr; }
+        .hero { padding: 20px 0 4px; }
+        .hero h1 { font-size: 27px; }
+        .top .small { display: none; }
+        .top .wrap { padding-top: 10px; padding-bottom: 10px; }
+        .top .row > .secondary, .top label { display: none; }
+        .top .app-nav { display: none; }
+        body { padding-bottom: 74px; }
+        .bottom-nav { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; position: fixed; z-index: 8; left: 10px; right: 10px; bottom: 10px; padding: 6px; background: rgba(24,34,28,.96); border-radius: 14px; box-shadow: 0 12px 30px rgba(24,34,28,.22); }
+        .bottom-nav button { background: transparent; color: #aeb9b0; padding: 8px 4px; border-radius: 9px; font-size: 12px; }
+        .bottom-nav button.active { background: #fff; color: var(--ink); }
+        .resource-grid { grid-template-columns: 1fr; }
+        .quick-capture { grid-template-columns: 1fr; }
+        .quick-capture button { width: 100%; }
+      }
+      @media (max-width: 390px) {
+        body {
+          font-size: 14px;
+        }
+        button {
+          padding: 9px 10px;
+        }
+        .field {
+          min-width: 100%;
+        }
+        .top .wrap {
+          display: block;
+        }
+        .top .row {
+          margin-top: 8px;
+        }
+        .app-nav { margin-top: 8px; overflow-x: auto; }
+        .app-nav button { white-space: nowrap; }
+      }
+      @media (max-width: 320px) {
+        .wrap {
+          padding: 8px;
+        }
+        .card {
+          padding: 11px;
+          border-radius: 10px;
+        }
+        .row {
+          gap: 6px;
+        }
+        button {
+          width: 100%;
+        }
+        .template-cards { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <div>
+          <div class="brand">
+            学习计划助手 <span class="tag">本地静态版</span>
+          </div>
+          <div class="small">
+            数据仅存于当前浏览器；不含官方考试数据或成绩承诺。
+          </div>
+        </div>
+        <div class="row">
+          <nav class="app-nav" aria-label="主导航">
+            <button id="navToday" class="active" type="button" onclick="showScreen('today')">今天</button>
+            <button id="navPlan" type="button" onclick="showScreen('plan')">建计划</button>
+            <button id="navLibrary" type="button" onclick="showScreen('library')">资料与设置</button>
+          </nav>
+          <button class="secondary" onclick="exportData()">导出数据</button
+          ><label
+            ><button
+              class="secondary"
+              type="button"
+              onclick="document.getElementById('importFile').click()"
+            >
+              导入数据</button
+            ><input
+              id="importFile"
+              class="hidden"
+              type="file"
+              accept="application/json"
+              onchange="importData(event)"
+          /></label>
+        </div>
+      </div>
+    </header>
+    <main class="wrap">
+      <div class="notice" id="globalNotice">
+        考试日期、科目和学习内容均为<strong>用户自定义 / 待核验</strong
+        >。本工具不提供官方考试政策、教材页码判断或成绩承诺。
+      </div>
+      <section class="screen" id="screenToday">
+        <div class="hero">
+          <p class="eyebrow">STUDY FLOW</p>
+          <h1 id="todayHeadline">今天，留给最重要的一件事。</h1>
+          <p id="todaySubhead">少一点计划焦虑，先进入你的学习节奏。</p>
+        </div>
+        <div class="today-rhythm">
+          <div><span class="eyebrow">TODAY'S RHYTHM</span><strong id="rhythmText">还没有安排，先从一件小事开始。</strong><span id="rhythmHint" class="small">建立计划后，这里只保留今天真正需要完成的内容。</span></div>
+          <div id="progressRing" class="progress-ring"><span id="ringLabel">0%</span></div>
+        </div>
+        <div class="today-layout">
+          <div>
+            <div class="card focus-card">
+              <div class="section-head"><h2>现在做</h2><span id="todayProgress" class="tag"></span></div>
+              <div id="nextTask"></div>
+            </div>
+            <div class="card"><h2>快速记一件事</h2><p class="small">想到什么就记什么，不用先整理完整计划。</p><div class="quick-capture"><label class="field"><span>任务</span><input id="quickTask" placeholder="例如：背 20 个单词" /></label><label class="field"><span>科目</span><select id="quickSubject"></select></label><button type="button" onclick="quickAddTask()">加入今天</button></div><div class="duration-picks" aria-label="预计用时"><button type="button" data-min="15" onclick="chooseQuickMinutes(15)">15 分钟</button><button type="button" data-min="30" class="selected" onclick="chooseQuickMinutes(30)">30 分钟</button><button type="button" data-min="45" onclick="chooseQuickMinutes(45)">45 分钟</button><button type="button" data-min="60" onclick="chooseQuickMinutes(60)">1 小时</button></div></div>
+            <div class="card"><div class="section-head"><h2>今日清单</h2><button class="secondary" type="button" onclick="showScreen('library')">添加任务</button></div><div id="tasks"></div></div>
+          </div>
+          <aside>
+            <div class="card context-card"><h2>计划状态</h2><div id="planSummary"></div></div>
+            <div class="card context-card"><h2>下一步</h2><p class="small">不用一次把所有资料和任务填完。先让今天有一件能开始的事。</p><button class="secondary" type="button" onclick="showScreen('library')">整理资料</button></div>
+          </aside>
+        </div>
+      </section>
+      <section class="screen" id="screenPlan" hidden>
+        <div class="hero"><h1>先决定今天怎么学。</h1><p>目标和时间够了，剩下的内容会随着你使用再补。</p></div>
+        <div class="onboarding">
+          <div class="stepper"><div id="step1" class="current">1 · 选择目标</div><div id="step2">2 · 告诉我每天有多久</div><div id="step3">3 · 开始第一件事</div></div>
+          <div class="guide" aria-labelledby="guideTitle"><strong id="guideTitle">第一次使用</strong><p class="small">先选一个目标，再告诉我每天大概能学多久。科目、资料和任务不用现在一次填完。</p></div>
+          <div class="template-cards" aria-label="目标模板">
+            <button class="template-card" type="button" onclick="applyGoalPreset('国考')"><strong>国考</strong><span>行测 + 申论</span></button>
+            <button class="template-card" type="button" onclick="applyGoalPreset('省考')"><strong>省考</strong><span>行测 + 申论</span></button>
+            <button class="template-card" type="button" onclick="applyGoalPreset('考研')"><strong>考研</strong><span>政治、英语、数学/专业基础、专业课</span></button>
+            <button class="template-card" type="button" onclick="applyGoalPreset('四六级')"><strong>四六级</strong><span>词汇、阅读、听力、写作与翻译</span></button>
+          </div>
+          <datalist id="goalSuggestions"><option value="国考"></option><option value="省考"></option><option value="考研"></option><option value="四六级"></option></datalist>
+          <div class="simple-setup"><div class="card"><h2>你现在主要想学什么？</h2><label class="field"><span>目标</span><input id="goalName" list="goalSuggestions" oninput="showGoalRecognition()" placeholder="例如：国考、考研、英语" /></label><p id="goalRecognition" class="recognition" aria-live="polite"></p><label class="field"><span>每天大概能学多久？</span><select id="dailyHours"><option value="0.5">30 分钟</option><option value="1">1 小时</option><option value="2">2 小时</option><option value="3" selected>3 小时</option><option value="4">4 小时以上</option></select></label><details><summary>还想设置更细的计划（可选）</summary><div class="row"><label class="field">考试/阶段日期<input id="examDate" type="date" /></label><label class="field">每周可用小时<input id="weeklyHours" type="number" min="0" step="0.5" placeholder="例如 20" /></label><label class="field">高效时段<select id="peakPeriod"><option>上午</option><option selected>下午</option><option>晚上</option><option>不固定</option></select></label></div></details><label class="row"><input type="checkbox" id="privacy" />我理解数据仅保存在本地</label><button type="button" onclick="saveGoal()">开始使用</button></div></div>
+        </div>
+      </section>
+      <section class="screen" id="screenLibrary" hidden>
+        <div class="hero"><h1>资料与设置。</h1><p>这里管理科目、主资料和本地数据；日常学习不用反复打开这里。</p></div>
+        <div class="grid">
+          <section>
+            <div class="card"><h2>科目与资料角色</h2><div class="row"><label class="field">科目<input id="subjectName" placeholder="例如：行测·资料分析" /></label><button onclick="addSubject()">添加科目</button></div><div id="subjectList"></div><div class="row"><label class="field">资料名称<input id="materialName" placeholder="例如：你的教材、课程或题册" /></label><label class="field">关联科目<select id="materialSubject"></select></label><label class="field">角色<select id="materialRole"><option value="primary">主资料</option><option value="secondary">辅助资料</option><option value="paused">暂停并用</option></select></label><button onclick="addMaterial()">保存资料</button></div><p class="small">每科仅一个主资料。带“请替换”的内容只是占位，请换成你真实使用的资料。</p><div id="materialList"></div></div>
+            <div class="card"><h2>今天要做什么</h2><p class="small">先写清楚做什么、做到哪里。步骤和复盘可以稍后补，不阻碍开始。</p><div class="row"><label class="field">科目<select id="taskSubject"></select></label><label class="field">资料<select id="taskMaterial"></select></label><label class="field">优先级<select id="priority"><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></label></div><div class="row"><label class="field">任务名称<input id="knowledgePoint" placeholder="例如：资料分析｜增长率" /></label><label class="field">完成标准<input id="quantity" placeholder="例如：计时完成 5 题并订正" /></label><label class="field">预计分钟<input id="minutes" type="number" min="1" value="45" /></label></div><details><summary>补充执行步骤与复盘要求（可选）</summary><label class="field">怎么做<textarea id="steps" rows="2" placeholder="例如：先计时作答，再核对并记录错因"></textarea></label><label class="field">做完记录什么<textarea id="review" rows="2" placeholder="例如：记录一个错因和一个可复用方法"></textarea></label></details><button onclick="addTask()">加入今天</button></div>
+          </section>
+          <aside>
+            <div class="card"><h2>版本记录</h2><ul id="versions" class="history small"></ul></div>
+            <div class="card"><h2>本地数据</h2><p class="small">数据只保存在当前浏览器，不联网、不登录。换设备不会自动同步，请用导出/导入迁移。</p><div class="row"><button class="secondary" onclick="exportData()">导出数据</button><button class="secondary" type="button" onclick="document.getElementById('importFile').click()">导入数据</button></div><input id="importFile" class="hidden" type="file" accept="application/json" onchange="importData(event)" /><label class="row"><input type="checkbox" id="privacy" />我理解数据仅保存在本地</label></div>
+          </aside>
+        </div>
+      </section>
+      <section class="screen" id="screenLegacyPlan" hidden>
+      <section class="guide" aria-labelledby="guideTitle">
+        <strong id="guideTitle">第一次怎么用？</strong>
+        <ol>
+          <li><strong>选目标</strong>：点常用目标或直接输入，系统会识别常见别名；不确定时保留“待确认”。</li>
+          <li><strong>补科目和资料</strong>：每科选一份主资料，其他资料可设为辅助或暂停。</li>
+          <li><strong>建今天能完成的任务</strong>：写清知识点、完成量、步骤和复盘，不按空泛时长打卡。</li>
+          <li><strong>按“现在做”执行</strong>：做完点完成；卡住或延期先看影响，再决定是否重排。</li>
+        </ol>
+      </section>
+      <div class="grid">
+        <section>
+          <div class="card">
+            <h2>1. 计划基础</h2>
+            <p class="small">先从一个常用目标开始；没有匹配项就用自定义，不会擅自替你判断考试类型。</p>
+            <div class="quick-picks" aria-label="常用学习目标">
+              <button class="secondary" type="button" onclick="applyGoalPreset('国考')">国考</button>
+              <button class="secondary" type="button" onclick="applyGoalPreset('省考')">省考</button>
+              <button class="secondary" type="button" onclick="applyGoalPreset('考研')">考研</button>
+              <button class="secondary" type="button" onclick="applyGoalPreset('四六级')">四六级</button>
+              <button class="secondary" type="button" onclick="applyGoalPreset('')">自定义</button>
+            </div>
+            <div class="row">
+              <label class="field"
+                >目标名称<input
+                  id="goalName"
+                  list="goalSuggestions"
+                  oninput="showGoalRecognition()"
+                  placeholder="例如：国考、国家公务员考试或自定义目标" /></label
+              ><label class="field"
+                >考试/阶段日期<input id="examDate" type="date"
+              /></label>
+            </div>
+            <datalist id="goalSuggestions">
+              <option value="国考"></option>
+              <option value="省考"></option>
+              <option value="考研"></option>
+              <option value="四六级"></option>
+            </datalist>
+            <p id="goalRecognition" class="recognition" aria-live="polite"></p>
+            <div class="starter">
+              <strong>不想从空白开始？</strong>
+              <p id="starterHint" class="small">先选择上方目标，再一键生成科目和待替换的资料占位。</p>
+              <button type="button" onclick="createStarterPlan()">一键生成起步结构</button>
+            </div>
+            <div class="row">
+              <label class="field"
+                >每周可用小时<input
+                  id="weeklyHours"
+                  type="number"
+                  min="0"
+                  step="0.5" /></label
+              ><label class="field"
+                >每日可用小时<input
+                  id="dailyHours"
+                  type="number"
+                  min="0"
+                  step="0.5" /></label
+              ><label class="field"
+                >高效时段<select id="peakPeriod">
+                  <option>上午</option>
+                  <option>下午</option>
+                  <option>晚上</option>
+                  <option>不固定</option>
+                </select></label
+              >
+            </div>
+            <div class="row">
+              <button onclick="saveGoal()">保存基础信息</button
+              ><button class="secondary" onclick="switchGoal()">
+                切换目标并清空模块/任务
+              </button>
+            </div>
+            <p class="small">
+              切换目标会清空当前模块、资料和任务，避免国考等目标残留英语听力等旧内容；该清空操作会再次要求确认。
+            </p>
+          </div>
+          <div class="card">
+            <h2>2. 科目与资料角色</h2>
+            <div class="row">
+              <label class="field"
+                >科目<input id="subjectName" placeholder="例如：行测" /></label
+              ><button onclick="addSubject()">添加科目</button>
+            </div>
+            <div id="subjectList"></div>
+            <div class="row">
+              <label class="field"
+                >资料名称<input
+                  id="materialName"
+                  placeholder="例如：用户自己的题册" /></label
+              ><label class="field"
+                >关联科目<select id="materialSubject"></select></label
+              ><label class="field"
+                >角色<select id="materialRole">
+                  <option value="primary">主资料</option>
+                  <option value="secondary">辅助资料</option>
+                  <option value="paused">暂停并用</option>
+                </select></label
+              ><button onclick="addMaterial()">保存资料</button>
+            </div>
+            <p class="small">
+              每科仅一个主资料；暂停并用仅是用户自定义提醒，并不评价资料正确性。起步结构里的“请替换”只是占位，改成你自己的资料即可。
+            </p>
+            <div id="materialList"></div>
+          </div>
+          <div class="card">
+            <h2>3. 添加可执行任务</h2>
+            <div class="row">
+              <label class="field">科目<select id="taskSubject"></select></label
+              ><label class="field"
+                >资料<select id="taskMaterial"></select></label
+              ><label class="field"
+                >优先级<select id="priority">
+                  <option value="high">高</option>
+                  <option value="medium">中</option>
+                  <option value="low">低</option>
+                </select></label
+              >
+            </div>
+            <div class="row">
+              <label class="field"
+                >知识点<input
+                  id="knowledgePoint"
+                  placeholder="例如：资料分析｜增长率" /></label
+              ><label class="field"
+                >完成量<input
+                  id="quantity"
+                  placeholder="例如：计时完成 1 组材料（5题）" /></label
+              ><label class="field"
+                >预计分钟<input id="minutes" type="number" min="1" value="45"
+              /></label>
+            </div>
+            <label class="field"
+              >步骤<textarea
+                id="steps"
+                rows="2"
+                placeholder="例如：圈时间、单位和比较对象；列式并记录耗时"
+              ></textarea></label
+            ><label class="field"
+              >完成后复盘<textarea
+                id="review"
+                rows="2"
+                placeholder="例如：记录错题原因和一个可复用速算点"
+              ></textarea></label
+            ><button onclick="addTask()">添加任务</button>
+          </div>
+        </section>
+        <aside>
+          <div class="card">
+            <h2>现在做：唯一下一步</h2>
+            <div id="nextTask"></div>
+          </div>
+          <div class="card">
+            <h2>今日任务</h2>
+            <div id="tasks"></div>
+          </div>
+          <div class="card">
+            <h2>版本记录</h2>
+            <ul id="versions" class="history small"></ul>
+          </div>
+          <div class="card">
+            <h2>隐私与本地存储</h2>
+            <p class="small">
+              本版本不联网、不登录，使用
+              <code>localStorage</code>
+              保存目标、资料、任务、操作原因与版本记录。可随时导出
+              JSON；导入会覆盖本地数据，需再次确认。浏览器清除站点数据会清除本地计划。
+            </p>
+            <label class="row"
+              ><input type="checkbox" id="privacy" />
+              我理解并同意仅在此浏览器本地保存上述数据</label
+            >
+          </div>
+        </aside>
+      </div></section>
+    </main>
+    <nav class="bottom-nav" aria-label="移动端导航">
+      <button id="mobileNavToday" class="active" type="button" onclick="showScreen('today')">今日</button>
+      <button id="mobileNavPlan" type="button" onclick="showScreen('plan')">计划</button>
+      <button id="mobileNavLibrary" type="button" onclick="showScreen('library')">资料</button>
+    </nav>
+    <dialog id="adjustDialog">
+      <h2 id="adjustTitle">调整任务</h2>
+      <p id="adjustIntro" class="small"></p>
+      <label class="field"
+        >原因（可跳过）<select id="reason">
+          <option value="">未说明（信息不足）</option>
+          <option>时间不足</option>
+          <option>任务过大</option>
+          <option>资料未准备</option>
+          <option>知识点不会</option>
+          <option>身体/突发情况</option>
+          <option>其他</option>
+        </select></label
+      ><label class="field"
+        >调整方式<select id="replanMode">
+          <option value="delay">仅顺延一次</option>
+          <option value="split">拆成两段</option>
+          <option value="keep">保留原计划</option>
+        </select></label
+      >
+      <div id="impact" class="notice" style="margin-top: 12px"></div>
+      <div class="row" style="margin-top: 14px">
+        <button onclick="previewImpact()">查看影响预览</button
+        ><button
+          class="secondary"
+          onclick="document.getElementById('adjustDialog').close()"
+        >
+          暂不调整</button
+        ><button class="warn" onclick="confirmReplan()">
+          确认调整并生成新版本
+        </button>
+      </div>
+    </dialog>
+    <div id="toast" class="hidden"></div>
+    <script>
+      const KEY = "learning-planner-release-v1";
+      const today = () => {
+        const value = new Date();
+        const offset = value.getTimezoneOffset() * 60000;
+        return new Date(value.getTime() - offset).toISOString().slice(0, 10);
+      };
+      const uid = (p) =>
+        p + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
+      let undoTimer, undoTask;
+      let activeScreen = "today";
+      let quickMinutes = 30;
+      document.getElementById("screenLegacyPlan")?.remove();
+      const blank = () => ({
+        schemaVersion: 1,
+        goal: {
+          name: "",
+          examDate: "",
+          weeklyHours: null,
+          dailyHours: null,
+          peakPeriod: "下午",
+          officialStatus: "user-defined",
+        },
+        subjects: [],
+        materials: [],
+        tasks: [],
+        planVersions: [],
+        settings: { storage: "localStorage", privacyAccepted: false },
+      });
+      let state = JSON.parse(localStorage.getItem(KEY) || "null") || blank();
+      function save() {
+        localStorage.setItem(KEY, JSON.stringify(state));
+        render();
+      }
+      function showScreen(screen) {
+        activeScreen = screen;
+        ["today", "plan", "library"].forEach((name) => {
+          document.getElementById(`screen${name[0].toUpperCase()}${name.slice(1)}`).hidden = name !== screen;
+          document.getElementById(`nav${name[0].toUpperCase()}${name.slice(1)}`).classList.toggle("active", name === screen);
+          document.getElementById(`mobileNav${name[0].toUpperCase()}${name.slice(1)}`).classList.toggle("active", name === screen);
+        });
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+      function esc(s) {
+        return String(s || "").replace(
+          /[&<>"']/g,
+          (m) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              '"': "&quot;",
+              "'": "&#39;",
+            })[m],
+        );
+      }
+      function toast(s) {
+        const e = document.getElementById("toast");
+        e.textContent = s;
+        e.classList.remove("hidden");
+        clearTimeout(window.toastTimer);
+        window.toastTimer = setTimeout(() => e.classList.add("hidden"), 3500);
+      }
+      function bindGoal() {
+        goalName.value = state.goal.name;
+        examDate.value = state.goal.examDate;
+        weeklyHours.value = state.goal.weeklyHours ?? "";
+        dailyHours.value = state.goal.dailyHours ?? "";
+        peakPeriod.value = state.goal.peakPeriod;
+        privacy.checked = state.settings.privacyAccepted;
+        showGoalRecognition();
+      }
+      function normalizeGoalName(value) {
+        return String(value || "")
+          .trim()
+          .toLowerCase()
+          .replace(/[\s\-_]/g, "");
+      }
+      function recognizeGoal(value = goalName.value) {
+        const n = normalizeGoalName(value);
+        const aliases = {
+          国考: ["国考", "国家公务员考试", "国家公务员", "国家公务员招录"],
+          省考: ["省考", "省公务员考试", "各省公务员考试"],
+          考研: ["考研", "研究生考试", "全国硕士研究生招生考试"],
+          四六级: ["四六级", "大学英语四六级", "cet4", "cet6", "四级", "六级"],
+        };
+        for (const [canonical, names] of Object.entries(aliases)) {
+          if (names.map(normalizeGoalName).includes(n)) return canonical;
+        }
+        if (n === "公务员考试") return "公务员考试（待确认国考或省考）";
+        return "";
+      }
+      function showGoalRecognition() {
+        const raw = goalName.value.trim();
+        const recognized = recognizeGoal(raw);
+        goalRecognition.textContent = !raw
+          ? "可直接点上方选项；也可以输入自己的目标。"
+          : recognized && recognized === raw
+            ? `已选择：${recognized}。后续科目和资料仍由你确认。`
+            : recognized
+              ? `识别为：${recognized}。保存时会按该名称保存；请确认无误。`
+              : "未匹配常用别名，将按你的自定义名称保存。";
+      }
+      function applyGoalPreset(name) {
+        goalName.value = name;
+        showGoalRecognition();
+        document.querySelectorAll(".template-card").forEach((card) => card.classList.toggle("selected", card.textContent.trim().startsWith(name)));
+        document.getElementById("step2").classList.add("current");
+        toast(name ? `已选择“${name}”，补充时间后保存即可。` : "请输入你的自定义学习目标。");
+        goalName.focus();
+      }
+      const STARTER_TEMPLATES = {
+        "国考": {
+          subjects: ["行测·言语理解", "行测·判断推理", "行测·资料分析", "行测·数量关系", "行测·常识判断", "申论"],
+          materials: ["行测主资料（请替换为你的教材/课程）", "申论主资料（请替换为你的教材/课程）"],
+        },
+        "省考": {
+          subjects: ["行测·言语理解", "行测·判断推理", "行测·资料分析", "行测·数量关系", "行测·常识判断", "申论"],
+          materials: ["行测主资料（请替换为你的教材/课程）", "申论主资料（请替换为你的教材/课程）"],
+        },
+        "考研": {
+          subjects: ["政治", "英语", "数学/专业基础", "专业课"],
+          materials: ["政治主资料（请替换）", "英语主资料（请替换）", "数学/专业基础主资料（请替换）", "专业课主资料（请替换）"],
+        },
+        "四六级": {
+          subjects: ["词汇", "阅读", "听力", "写作与翻译"],
+          materials: ["英语主资料（请替换为你的教材/题册）"],
+        },
+      };
+      function createStarterPlan(fromSave = false) {
+        const raw = goalName.value.trim();
+        const target = recognizeGoal(raw);
+        if (!target || !STARTER_TEMPLATES[target]) {
+          return toast("请先选择国考、省考、考研或四六级；自定义目标可手动添加科目。");
+        }
+        if (!fromSave && (state.subjects.length || state.materials.length || state.tasks.length) && !confirm("这会替换当前科目、资料和任务。建议先导出备份，确认继续？")) return;
+        const template = STARTER_TEMPLATES[target];
+        state.goal = {
+          name: target,
+          examDate: examDate.value,
+          weeklyHours: numberOrNull(weeklyHours.value),
+          dailyHours: numberOrNull(dailyHours.value),
+          peakPeriod: peakPeriod.value,
+          officialStatus: "user-defined",
+        };
+        state.subjects = template.subjects.map((name) => ({ id: uid("s"), name }));
+        state.materials = [];
+        if (target === "国考" || target === "省考") {
+          state.subjects.forEach((subject) => state.materials.push({
+            id: uid("m"),
+            subjectId: subject.id,
+            name: `${subject.name}主资料（请替换为你的教材/课程）`,
+            role: "primary",
+          }));
+        } else if (target === "考研") {
+          state.subjects.forEach((subject, index) => state.materials.push({ id: uid("m"), subjectId: subject.id, name: template.materials[index], role: "primary" }));
+        } else {
+          state.subjects.forEach((subject) => state.materials.push({
+            id: uid("m"),
+            subjectId: subject.id,
+            name: `${subject.name}主资料（请替换为你的教材/题册）`,
+            role: "primary",
+          }));
+        }
+        state.tasks = [];
+        state.planVersions.push({
+          id: uid("v"),
+          createdAt: new Date().toISOString(),
+          source: "initial",
+          changes: [`已生成“${target}”起步结构；资料均为待替换占位，不代表你的真实资料`],
+        });
+        save();
+        document.getElementById("step3").classList.add("current");
+        toast("起步结构已生成。资料占位已放进“资料与设置”，现在添加第一条任务。");
+        showScreen("today");
+      }
+      function ensureStarterMaterialCoverage() {
+        const preset = normalizeGoalName(state.goal.name || "");
+        if (!STARTER_TEMPLATES[preset] || !state.subjects.length) return false;
+        let changed = false;
+        state.subjects.forEach((subject) => {
+          const hasUsableMaterial = state.materials.some(
+            (item) => item.subjectId === subject.id && item.role !== "paused",
+          );
+          if (hasUsableMaterial) return;
+          const suffix = preset === "四六级" ? "教材/题册" : "教材/课程";
+          state.materials.push({
+            id: uid("m"),
+            subjectId: subject.id,
+            name: `${subject.name}主资料（请替换为你的${suffix}）`,
+            role: "primary",
+          });
+          changed = true;
+        });
+        if (changed) {
+          state.planVersions.push({
+            id: uid("v"),
+            createdAt: new Date().toISOString(),
+            source: "starter-material-repair",
+            changes: ["已补齐缺失的起步资料占位，请替换为你的真实资料"],
+          });
+        }
+        return changed;
+      }
+      function numberOrNull(value) {
+        return value === "" ? null : Math.max(0, +value || 0);
+      }
+      function saveGoal() {
+        const name = document.getElementById("goalName"),
+          date = document.getElementById("examDate"),
+          hours = document.getElementById("weeklyHours"),
+          daily = document.getElementById("dailyHours"),
+          peak = document.getElementById("peakPeriod"),
+          privacyBox = document.getElementById("privacy");
+        const rawName = name.value.trim();
+        const recognized = recognizeGoal(rawName);
+        state.goal = {
+          name: recognized || rawName,
+          examDate: date.value,
+          weeklyHours: numberOrNull(hours.value),
+          dailyHours: numberOrNull(daily.value),
+          peakPeriod: peak.value,
+          officialStatus: "user-defined",
+        };
+        state.settings.privacyAccepted = privacyBox.checked;
+        if (!state.subjects.length && STARTER_TEMPLATES[recognized]) {
+          createStarterPlan(true);
+          return;
+        }
+        save();
+        toast(recognized && recognized !== rawName ? `已识别并保存为“${recognized}”。` : "基础信息已保存。现在添加第一条任务。");
+        showScreen("today");
+      }
+      function switchGoal() {
+        const rawName = goalName.value.trim();
+        const name = recognizeGoal(rawName) || rawName || "未命名目标";
+        if (
+          !confirm(
+            `将切换为“${name}”并清空 ${state.subjects.length} 个模块、${state.materials.length} 份资料、${state.tasks.length} 项任务。此操作不可撤销（除非先导出），确认继续？`,
+          )
+        )
+          return;
+        state.goal = {
+          name,
+          examDate: examDate.value,
+          weeklyHours: numberOrNull(weeklyHours.value),
+          dailyHours: numberOrNull(dailyHours.value),
+          peakPeriod: peakPeriod.value,
+          officialStatus: "user-defined",
+        };
+        state.subjects = [];
+        state.materials = [];
+        state.tasks = [];
+        state.planVersions.push({
+          id: uid("v"),
+          createdAt: new Date().toISOString(),
+          source: "initial",
+          changes: ["目标切换：清空模块、资料和任务"],
+        });
+        save();
+        toast("已切换目标；模块与任务已清空。");
+      }
+      function addSubject() {
+        const field = document.getElementById("subjectName");
+        const n = field.value.trim();
+        if (!n) return toast("请填写科目。");
+        if (state.subjects.some((x) => x.name === n))
+          return toast("该科目已存在。");
+        state.subjects.push({ id: uid("s"), name: n });
+        field.value = "";
+        save();
+      }
+      function addMaterial() {
+        const nameField = document.getElementById("materialName"),
+          subjectField = document.getElementById("materialSubject"),
+          roleField = document.getElementById("materialRole");
+        const n = nameField.value.trim(),
+          sid = subjectField.value,
+          role = roleField.value;
+        if (!n || !sid) return toast("请填写资料并选择科目。");
+        if (role === "primary") {
+          const old = state.materials.find(
+            (x) => x.subjectId === sid && x.role === "primary",
+          );
+          if (old)
+            return toast(`该科已有主资料“${old.name}”，请先改为辅助或暂停。`);
+        }
+        state.materials.push({ id: uid("m"), subjectId: sid, name: n, role });
+        nameField.value = "";
+        save();
+      }
+      function editMaterial(id) {
+        const item = material(id);
+        if (!item) return;
+        const nextName = prompt("资料名称", item.name);
+        if (nextName === null) return;
+        const name = nextName.trim();
+        if (!name) return toast("资料名称不能为空。");
+        item.name = name;
+        save();
+        toast("资料名称已更新。");
+      }
+      function taskSubjectChanged() {
+        const subjectField = document.getElementById("taskSubject"),
+          materialField = document.getElementById("taskMaterial");
+        const sid = subjectField.value;
+        const available = state.materials.filter(
+          (m) => m.subjectId === sid && m.role !== "paused",
+        );
+        materialField.innerHTML = available.length
+          ? available
+              .map(
+                (m) =>
+                  `<option value="${m.id}">${esc(m.name)}（${m.role === "primary" ? "主" : "辅助"}）</option>`,
+              )
+              .join("")
+          : '<option value="">该科还没有可用资料</option>';
+      }
+      function addTask() {
+        const subjectField = document.getElementById("taskSubject"),
+          materialField = document.getElementById("taskMaterial"),
+          knowledgeField = document.getElementById("knowledgePoint"),
+          quantityField = document.getElementById("quantity"),
+          stepsField = document.getElementById("steps"),
+          reviewField = document.getElementById("review"),
+          minutesField = document.getElementById("minutes"),
+          priorityField = document.getElementById("priority");
+        const sid = subjectField.value,
+          mid = materialField.value,
+          k = knowledgeField.value.trim(),
+          q = quantityField.value.trim(),
+          st = stepsField.value.trim(),
+          r = reviewField.value.trim(),
+          min = +minutesField.value;
+        if (!sid || !k || !q || !min)
+          return toast("请填写科目、任务名称、完成标准和预计时间。");
+        state.tasks.push({
+          id: uid("t"),
+          subjectId: sid,
+          materialId: mid,
+          knowledgePoint: k,
+          quantity: q,
+          steps: st || "直接开始，完成后再补充步骤。",
+          review: r || "完成后记录实际结果或主要困难。",
+          priority: priorityField.value,
+          minutes: min,
+          status: "todo",
+          scheduledDate: today(),
+          events: [],
+        });
+        ["knowledgePoint", "quantity", "steps", "review"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        save();
+        showScreen("today");
+        toast("已加入今天，直接开始吧。");
+      }
+      function chooseQuickMinutes(value) {
+        quickMinutes = value;
+        document.querySelectorAll(".duration-picks button").forEach((button) => {
+          button.classList.toggle("selected", +button.dataset.min === value);
+        });
+      }
+      function quickAddTask() {
+        const field = document.getElementById("quickTask");
+        const subjectField = document.getElementById("quickSubject");
+        const knowledgePoint = field.value.trim();
+        const subjectId = subjectField.value;
+        if (!knowledgePoint) return toast("先写下你准备做什么。");
+        if (!subjectId) return toast("先建一个计划或添加科目。");
+        const primary = state.materials.find((item) => item.subjectId === subjectId && item.role === "primary") || state.materials.find((item) => item.subjectId === subjectId && item.role !== "paused");
+        state.tasks.push({
+          id: uid("t"), subjectId, materialId: primary?.id || "", knowledgePoint,
+          quantity: "完成这件事", steps: "直接开始，完成后再补充步骤。",
+          review: "完成后记录实际结果或主要困难。", priority: "medium",
+          minutes: quickMinutes, status: "todo", scheduledDate: today(), events: [],
+        });
+        field.value = "";
+        save();
+        toast("已加入今天。");
+      }
+      function subjectName(id) {
+        return state.subjects.find((s) => s.id === id)?.name || "未关联科目";
+      }
+      function material(id) {
+        return state.materials.find((m) => m.id === id);
+      }
+      function next() {
+        const rank = { high: 0, medium: 1, low: 2 };
+        return state.tasks
+          .filter((t) =>
+            t.scheduledDate === today() &&
+            ["todo", "in-progress", "blocked"].includes(t.status),
+          )
+          .sort(
+            (a, b) =>
+              rank[a.priority] - rank[b.priority] ||
+              a.scheduledDate.localeCompare(b.scheduledDate),
+          )[0];
+      }
+      function start(id) {
+        let t = state.tasks.find((x) => x.id === id);
+        t.status = "in-progress";
+        t.events.push({ at: new Date().toISOString(), type: "start" });
+        save();
+      }
+      function done(id) {
+        let t = state.tasks.find((x) => x.id === id);
+        undoTask = { id, status: t.status };
+        t.status = "completed";
+        t.events.push({ at: new Date().toISOString(), type: "completed" });
+        save();
+        toast("已完成。5 秒内可撤销。");
+        clearTimeout(undoTimer);
+        undoTimer = setTimeout(() => (undoTask = null), 5000);
+      }
+      function undo(id) {
+        if (!undoTask || undoTask.id !== id) return toast("撤销窗口已结束。");
+        let t = state.tasks.find((x) => x.id === id);
+        t.status = undoTask.status;
+        t.events.push({ at: new Date().toISOString(), type: "undo" });
+        undoTask = null;
+        save();
+        toast("已撤销完成。");
+      }
+      let adjustingId = null,
+        adjustingKind = null,
+        previewed = false;
+      function statusLabel(s) {
+        return (
+          {
+            todo: "待开始",
+            "in-progress": "进行中",
+            completed: "已完成",
+            postponed: "已延期",
+            blocked: "已卡住",
+          }[s] || "待处理"
+        );
+      }
+      function adjust(id, kind) {
+        adjustingId = id;
+        adjustingKind = kind;
+        previewed = false;
+        let t = state.tasks.find((x) => x.id === id);
+        adjustTitle.textContent =
+          kind === "blocked" ? "标记卡住并调整" : "延期并调整";
+        adjustIntro.textContent = `“${t.knowledgePoint}”将先保留，系统不会自动删除。请选择原因与保守调整方式。`;
+        impact.textContent =
+          "点击“查看影响预览”后查看受影响任务、目标日期与资料安排。";
+        adjustDialog.showModal();
+      }
+      function previewImpact() {
+        let t = state.tasks.find((x) => x.id === adjustingId),
+          affected = state.tasks.filter(
+            (x) =>
+              x.status !== "completed" && x.scheduledDate >= t.scheduledDate,
+          ).length;
+        let mat = material(t.materialId);
+        const targetImpact = !state.goal.examDate
+          ? "未填写，无法评估"
+          : t.scheduledDate >= state.goal.examDate
+            ? "已触及或超过用户填写的目标日期"
+            : "尚未触及用户填写的目标日期";
+        previewed = true;
+        impact.innerHTML = `影响预览：将影响 <strong>${affected}</strong> 项未完成任务；目标节点：${targetImpact}；资料安排：${mat ? esc(mat.name) + "（不改变角色）" : "未绑定资料"}。${reason.value ? "原因已记录为“" + esc(reason.value) + "”。" : "原因未填写，标记为“信息不足”。"}`;
+      }
+      function confirmReplan() {
+        if (!previewed) return toast("请先查看影响预览，再确认调整。");
+        let t = state.tasks.find((x) => x.id === adjustingId),
+          mode = replanMode.value,
+          rs = reason.value || "信息不足",
+          adjustedStatus =
+            adjustingKind === "blocked" ? "blocked" : "postponed";
+        let changes = [];
+        if (mode === "delay") {
+          t.scheduledDate = new Date(Date.now() + 864e5)
+            .toISOString()
+            .slice(0, 10);
+          t.status = adjustedStatus;
+          changes.push(`任务顺延至 ${t.scheduledDate}`);
+        } else if (mode === "split") {
+          let clone = {
+            ...t,
+            id: uid("t"),
+            quantity: "第二段：" + t.quantity,
+            minutes: Math.ceil(t.minutes / 2),
+            status: "todo",
+            scheduledDate: new Date(Date.now() + 864e5)
+              .toISOString()
+              .slice(0, 10),
+            events: [],
+          };
+          t.quantity = "第一段：" + t.quantity;
+          t.minutes = Math.floor(t.minutes / 2) || 1;
+          t.status = adjustedStatus;
+          state.tasks.push(clone);
+          changes.push("任务拆为两段，第二段顺延一天");
+        } else {
+          t.status = adjustedStatus;
+          changes.push("保留原日期，仅标记待处理");
+        }
+        t.events.push({
+          at: new Date().toISOString(),
+          type: adjustingKind,
+          reason: rs,
+          mode,
+        });
+        state.planVersions.push({
+          id: uid("v"),
+          createdAt: new Date().toISOString(),
+          source: "confirmed-replan",
+          changes: [
+            ...changes,
+            `原因：${rs}`,
+            `影响任务：${state.tasks.filter((x) => x.status !== "completed").length}`,
+          ],
+        });
+        adjustDialog.close();
+        save();
+        toast("已确认调整，并创建可追溯版本。");
+      }
+      function exportData() {
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(
+          new Blob([JSON.stringify(state, null, 2)], {
+            type: "application/json",
+          }),
+        );
+        a.download = "learning-planner-local-export.json";
+        a.click();
+        URL.revokeObjectURL(a.href);
+        toast("已导出本地数据。");
+      }
+      function isDate(value) {
+        return typeof value === "string" && /^\d{4}-\d{2}-\d{2}$/.test(value);
+      }
+      function isValidImport(d) {
+        if (
+          !d ||
+          d.schemaVersion !== 1 ||
+          !d.goal ||
+          !Array.isArray(d.subjects) ||
+          !Array.isArray(d.materials) ||
+          !Array.isArray(d.tasks) ||
+          !Array.isArray(d.planVersions) ||
+          !d.settings ||
+          d.settings.storage !== "localStorage" ||
+          typeof d.settings.privacyAccepted !== "boolean"
+        )
+          return false;
+        const g = d.goal;
+        if (
+          typeof g.name !== "string" ||
+          typeof g.examDate !== "string" ||
+          !["上午", "下午", "晚上", "不固定"].includes(g.peakPeriod) ||
+          !["user-defined", "to-verify"].includes(g.officialStatus) ||
+          ![g.weeklyHours, g.dailyHours].every(
+            (v) => v === null || (typeof v === "number" && v >= 0),
+          )
+        )
+          return false;
+        const subjectIds = new Set();
+        if (
+          !d.subjects.every(
+            (s) =>
+              typeof s?.id === "string" &&
+              typeof s.name === "string" &&
+              s.name.trim() &&
+              !subjectIds.has(s.id) &&
+              subjectIds.add(s.id),
+          )
+        )
+          return false;
+        const materialIds = new Set(),
+          primarySubjects = new Set();
+        if (
+          !d.materials.every((m) => {
+            if (
+              typeof m?.id !== "string" ||
+              !subjectIds.has(m.subjectId) ||
+              typeof m.name !== "string" ||
+              !m.name.trim() ||
+              !["primary", "secondary", "paused"].includes(m.role) ||
+              materialIds.has(m.id)
+            )
+              return false;
+            materialIds.add(m.id);
+            if (m.role === "primary") {
+              if (primarySubjects.has(m.subjectId)) return false;
+              primarySubjects.add(m.subjectId);
+            }
+            return true;
+          })
+        )
+          return false;
+        const allowedStatus = new Set([
+          "todo",
+          "in-progress",
+          "completed",
+          "postponed",
+          "blocked",
+        ]);
+        return d.tasks.every(
+          (t) =>
+            typeof t?.id === "string" &&
+            subjectIds.has(t.subjectId) &&
+            (t.materialId === "" || materialIds.has(t.materialId)) &&
+            ["knowledgePoint", "quantity", "steps", "review"].every(
+              (key) => typeof t[key] === "string" && t[key].trim(),
+            ) &&
+            ["high", "medium", "low"].includes(t.priority) &&
+            typeof t.minutes === "number" &&
+            t.minutes > 0 &&
+            t.minutes <= 1440 &&
+            allowedStatus.has(t.status) &&
+            isDate(t.scheduledDate) &&
+            Array.isArray(t.events),
+        );
+      }
+      function importData(e) {
+        let f = e.target.files[0];
+        if (!f) return;
+        let r = new FileReader();
+        r.onload = () => {
+          try {
+            let d = JSON.parse(r.result);
+            if (!isValidImport(d)) throw Error("schema");
+            if (!confirm("导入会覆盖当前本地计划，确认导入？")) return;
+            state = d;
+            save();
+            toast("导入成功。");
+          } catch {
+            toast("导入失败：文件不是有效的计划数据。");
+          }
+        };
+        r.readAsText(f);
+        e.target.value = "";
+      }
+      function render() {
+        const repaired = ensureStarterMaterialCoverage();
+        if (repaired) localStorage.setItem(KEY, JSON.stringify(state));
+        bindGoal();
+        const opts = state.subjects
+          .map((s) => `<option value="${s.id}">${esc(s.name)}</option>`)
+          .join("");
+        materialSubject.innerHTML = '<option value="">选择科目</option>' + opts;
+        taskSubject.innerHTML = '<option value="">选择科目</option>' + opts;
+        quickSubject.innerHTML = state.subjects.length ? opts : '<option value="">先建计划</option>';
+        taskSubject.onchange = taskSubjectChanged;
+        if (state.subjects.length) {
+          materialSubject.value = state.subjects[0].id;
+          taskSubject.value = state.subjects[0].id;
+          taskSubjectChanged();
+        } else {
+          taskMaterial.innerHTML = '<option value="">先添加科目</option>';
+        }
+        subjectList.innerHTML = state.subjects.length
+          ? state.subjects
+              .map((s) => `<p class="pill">模块：${esc(s.name)}</p>`)
+              .join("")
+          : '<p class="small">暂无科目。先选目标后点“一键生成起步结构”，或手动添加科目。</p>';
+        materialList.innerHTML =
+          state.materials
+            .map(
+              (m) =>
+                `<article class="resource-item"><strong>${esc(m.name)}</strong><span>${esc(subjectName(m.subjectId))} · ${m.role === "primary" ? "主资料" : m.role === "secondary" ? "辅助资料" : "暂停使用"}</span><button class="secondary" type="button" onclick="editMaterial('${m.id}')">修改名称</button></article>`,
+            )
+            .join("") || '<div class="empty"><strong>还没有学习资料</strong><p class="small">先添加你实际在用的一本教材、课程或题册。</p></div>';
+        materialList.className = state.materials.length ? "resource-grid" : "";
+        const n = next();
+        nextTask.innerHTML = n
+          ? taskHtml(n, true)
+          : `<div class="empty"><strong>${state.goal.name ? "还没有第一条任务" : "先建一个学习计划"}</strong><p class="small">${state.goal.name ? "直接在下面写下一件要做的事，不用先整理资料。" : "选择目标和每天可用时间，就能开始。"}</p>${state.goal.name ? '<button type="button" onclick="document.getElementById(\'quickTask\').focus()">写下第一件事</button>' : '<button type="button" onclick="showScreen(\'plan\')">开始建计划</button>'}</div>`;
+        const todayTasks = state.tasks.filter((t) => t.scheduledDate === today());
+        const featuredId = next()?.id;
+        const remainingTasks = todayTasks.filter((t) => t.id !== featuredId);
+        tasks.innerHTML = remainingTasks.length
+          ? remainingTasks.map((t) => taskHtml(t)).join("")
+          : todayTasks.length
+            ? '<p class="small muted">上面的任务就是今天的全部安排。</p>'
+          : `<div class="empty"><strong>${state.goal.name ? "今天还没有任务" : "先建一个学习计划"}</strong><p class="small">${state.goal.name ? "安排一件 15 到 45 分钟内能完成的事，先让节奏动起来。" : "选一个目标，系统会帮你准备起步结构。"}</p><button type="button" onclick="showScreen('${state.goal.name ? "library" : "plan"}')">${state.goal.name ? "添加今天任务" : "开始建计划"}</button></div>`;
+        const completedToday = todayTasks.filter((t) => t.status === "completed").length;
+        const progress = todayTasks.length ? Math.round((completedToday / todayTasks.length) * 100) : 0;
+        todayProgress.textContent = todayTasks.length ? `${completedToday}/${todayTasks.length} 已完成` : "待开始";
+        todayHeadline.textContent = state.goal.name ? `${state.goal.name}，今天先完成最重要的一步。` : "把长期目标变成今天的一步。";
+        todaySubhead.textContent = state.goal.name
+          ? `${state.goal.examDate ? `目标日期：${state.goal.examDate}。` : "还没设置日期。"} 你只需要处理“现在做”这一项。`
+          : "首次进入只需选目标、补可用时间，系统会生成起步结构。";
+        rhythmText.textContent = todayTasks.length
+          ? `今天完成 ${completedToday} / ${todayTasks.length} 项，继续保持节奏。`
+          : state.goal.name ? "今天还没有任务，安排一件能在 45 分钟内做完的事。" : "还没有安排，先从一件小事开始。";
+        rhythmHint.textContent = todayTasks.length
+          ? `${next() ? `下一件：${next().knowledgePoint}` : "今天的任务都完成了。"}`
+          : "建立计划后，这里只保留今天真正需要完成的内容。";
+        progressRing.style.setProperty("--progress", `${progress}%`);
+        ringLabel.textContent = `${progress}%`;
+        planSummary.innerHTML = state.goal.name
+          ? `<p><strong>${esc(state.goal.name)}</strong></p><p class="small">${state.subjects.length} 个科目 · ${state.materials.length} 份资料 · ${state.tasks.length} 项任务</p><button class="secondary" type="button" onclick="showScreen('library')">查看资料</button>`
+          : '<p class="small">尚未创建计划。</p><button type="button" onclick="showScreen(\'plan\')">开始创建</button>';
+        versions.innerHTML = state.planVersions.length
+          ? state.planVersions
+              .slice()
+              .reverse()
+              .map(
+                (v) =>
+                  `<li><strong>${v.source === "confirmed-replan" ? "确认重排" : "初始/目标变更"}</strong> · ${new Date(v.createdAt).toLocaleString()}<br>${v.changes.map(esc).join("；")}</li>`,
+              )
+              .join("")
+          : "<li>尚无版本记录。</li>";
+        showScreen(activeScreen);
+      }
+      function taskHtml(t, featured = false) {
+        let m = material(t.materialId),
+          role = m
+            ? m.role === "primary"
+              ? "主资料"
+              : "辅助资料"
+            : "未绑定资料",
+          cls = `task ${t.priority} ${t.status === "completed" ? "done" : ""}`;
+        return `<article class="${cls}"><h3>${featured ? "现在做 · " : ""}${esc(t.knowledgePoint)}</h3><span class="pill">${esc(subjectName(t.subjectId))}</span><span class="pill ${m?.role || ""}">${esc(m?.name || "未绑定资料")} · ${role}</span><span class="pill">${t.priority === "high" ? "高" : t.priority === "medium" ? "中" : "低"}优先级</span><span class="pill">${statusLabel(t.status)}</span><p><b>完成量：</b>${esc(t.quantity)} · 约 ${t.minutes} 分钟</p><p><b>步骤：</b>${esc(t.steps)}</p><p><b>复盘：</b>${esc(t.review)}</p><div class="row">${t.status !== "completed" ? `<button onclick="start('${t.id}')">开始</button><button onclick="done('${t.id}')">完成</button><button class="secondary" onclick="adjust('${t.id}','postpone')">延期</button><button class="secondary" onclick="adjust('${t.id}','blocked')">卡住</button>` : `<button class="secondary" onclick="undo('${t.id}')">撤销完成</button>`}</div></article>`;
+      }
+      render();
+    </script>
+  </body>
+</html>

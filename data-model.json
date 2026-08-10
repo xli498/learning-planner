@@ -1,0 +1,123 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "学习计划助手本地数据模型",
+  "description": "所有内容仅保存在浏览器 localStorage；考试信息均为用户自定义或待核验，不代表官方考试数据。",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "goal",
+    "subjects",
+    "materials",
+    "tasks",
+    "planVersions",
+    "settings"
+  ],
+  "properties": {
+    "schemaVersion": { "const": 1 },
+    "goal": {
+      "type": "object",
+      "required": [
+        "name",
+        "examDate",
+        "weeklyHours",
+        "dailyHours",
+        "peakPeriod"
+      ],
+      "properties": {
+        "name": { "type": "string", "maxLength": 120 },
+        "examDate": { "type": "string", "format": "date" },
+        "weeklyHours": { "type": ["number", "null"], "minimum": 0 },
+        "dailyHours": { "type": ["number", "null"], "minimum": 0 },
+        "peakPeriod": {
+          "type": "string",
+          "enum": ["上午", "下午", "晚上", "不固定"]
+        },
+        "officialStatus": { "enum": ["user-defined", "to-verify"] }
+      }
+    },
+    "subjects": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "name"],
+        "properties": {
+          "id": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "name": { "type": "string", "minLength": 1, "maxLength": 120 }
+        }
+      }
+    },
+    "materials": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "subjectId", "name", "role"],
+        "properties": {
+          "id": { "type": "string" },
+          "subjectId": { "type": "string" },
+          "name": { "type": "string", "minLength": 1, "maxLength": 200 },
+          "role": { "enum": ["primary", "secondary", "paused"] }
+        }
+      }
+    },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "subjectId",
+          "materialId",
+          "knowledgePoint",
+          "quantity",
+          "steps",
+          "review",
+          "priority",
+          "minutes",
+          "status",
+          "scheduledDate"
+        ],
+        "properties": {
+          "id": { "type": "string" },
+          "subjectId": { "type": "string" },
+          "materialId": { "type": "string" },
+          "knowledgePoint": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 300
+          },
+          "quantity": { "type": "string", "minLength": 1, "maxLength": 500 },
+          "steps": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "review": { "type": "string", "minLength": 1, "maxLength": 2000 },
+          "minutes": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "maximum": 1440
+          },
+          "priority": { "enum": ["high", "medium", "low"] },
+          "status": {
+            "enum": ["todo", "in-progress", "completed", "postponed", "blocked"]
+          },
+          "scheduledDate": { "type": "string", "format": "date" }
+        }
+      }
+    },
+    "planVersions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "createdAt", "source", "changes"],
+        "properties": {
+          "source": { "enum": ["initial", "confirmed-replan"] },
+          "changes": { "type": "array" }
+        }
+      }
+    },
+    "settings": {
+      "type": "object",
+      "properties": {
+        "storage": { "const": "localStorage" },
+        "privacyAccepted": { "type": "boolean" }
+      }
+    }
+  }
+}
