@@ -6,6 +6,9 @@ html=(root/'index.html').read_text(encoding='utf-8')
 assert '<title>学习计划助手' in html
 for needle in ['完成量','完成后复盘','确认调整并生成新版本','localStorage','导出数据','导入数据','每科仅一个主资料','每日可用小时','isValidImport','todayTasks','目标节点','adjustingKind === "blocked"']:
     assert needle in html, needle
+assert 'const isSafeId = (value)' in html
+assert '^[A-Za-z][A-Za-z0-9_-]{0,63}$' in html
+assert 'function loadState()' in html
 schema=json.loads((root/'data-model.json').read_text())
 assert schema['properties']['tasks']['type']=='array'
 goal=schema['properties']['goal']

@@ -722,6 +722,8 @@
       };
       const uid = (p) =>
         p + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
+      const isSafeId = (value) =>
+        typeof value === "string" && /^[A-Za-z][A-Za-z0-9_-]{0,63}$/.test(value);
       let undoTimer, undoTask;
       let activeScreen = "today";
       let quickMinutes = 30;
@@ -742,7 +744,15 @@
         planVersions: [],
         settings: { storage: "localStorage", privacyAccepted: false },
       });
-      let state = JSON.parse(localStorage.getItem(KEY) || "null") || blank();
+      function loadState() {
+        try {
+          const stored = JSON.parse(localStorage.getItem(KEY) || "null");
+          return isValidImport(stored) ? stored : blank();
+        } catch {
+          return blank();
+        }
+      }
+      let state = loadState();
       function save() {
         localStorage.setItem(KEY, JSON.stringify(state));
         render();
@@ -1278,7 +1288,7 @@
         if (
           !d.subjects.every(
             (s) =>
-              typeof s?.id === "string" &&
+              isSafeId(s?.id) &&
               typeof s.name === "string" &&
               s.name.trim() &&
               !subjectIds.has(s.id) &&
@@ -1291,7 +1301,8 @@
         if (
           !d.materials.every((m) => {
             if (
-              typeof m?.id !== "string" ||
+              !isSafeId(m?.id) ||
+              !isSafeId(m.subjectId) ||
               !subjectIds.has(m.subjectId) ||
               typeof m.name !== "string" ||
               !m.name.trim() ||
@@ -1317,7 +1328,9 @@
         ]);
         return d.tasks.every(
           (t) =>
-            typeof t?.id === "string" &&
+            isSafeId(t?.id) &&
+            isSafeId(t.subjectId) &&
+            (t.materialId === "" || isSafeId(t.materialId)) &&
             subjectIds.has(t.subjectId) &&
             (t.materialId === "" || materialIds.has(t.materialId)) &&
             ["knowledgePoint", "quantity", "steps", "review"].every(
