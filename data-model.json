@@ -107,7 +107,7 @@
         "type": "object",
         "required": ["id", "createdAt", "source", "changes"],
         "properties": {
-          "source": { "enum": ["initial", "confirmed-replan"] },
+          "source": { "enum": ["initial", "confirmed-replan", "starter-material-repair"] },
           "changes": { "type": "array" }
         }
       }

@@ -2,7 +2,7 @@ from pathlib import Path
 
 html = Path(__file__).with_name("index.html").read_text(encoding="utf-8")
 required = [
-    'onclick="createStarterPlan()"',
+    'function createStarterPlan',
     'const STARTER_TEMPLATES',
     '"国考"',
     '"行测·资料分析"',
