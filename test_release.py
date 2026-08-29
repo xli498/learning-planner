@@ -11,7 +11,14 @@ assert '^[A-Za-z][A-Za-z0-9_-]{0,63}$' in html
 assert 'function loadState()' in html
 assert html.count('id="privacy"') == 1
 assert html.count('id="privacySettings"') == 1
-assert html.count('id="privacySummary"') == 1
+# Every element id must be unique across the whole document (including hidden
+# screens); duplicate ids make getElementById silently resolve to the first
+# match. This guard previously caught an accidentally resurrected legacy block.
+import re
+_ids = re.findall(r'id="([^"]+)"', html)
+_dupes = sorted({i for i in _ids if _ids.count(i) > 1})
+assert not _dupes, f'duplicate ids: {_dupes}'
+assert 'screenLegacyPlan' not in html
 schema=json.loads((root/'data-model.json').read_text())
 assert schema['properties']['tasks']['type']=='array'
 goal=schema['properties']['goal']
