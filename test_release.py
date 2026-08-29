@@ -9,6 +9,9 @@ for needle in ['完成量','做完记录什么','确认调整并生成新版本'
 assert 'const isSafeId = (value)' in html
 assert '^[A-Za-z][A-Za-z0-9_-]{0,63}$' in html
 assert 'function loadState()' in html
+assert html.count('id="privacy"') == 1
+assert html.count('id="privacySettings"') == 1
+assert html.count('id="privacySummary"') == 1
 schema=json.loads((root/'data-model.json').read_text())
 assert schema['properties']['tasks']['type']=='array'
 goal=schema['properties']['goal']
