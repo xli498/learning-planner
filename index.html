@@ -194,7 +194,6 @@
       .onboarding h2 { margin: 0 0 6px; font-size: 24px; }
       .onboarding .row { margin-top: 16px; }
       .utility-note { margin: 12px 0; padding: 12px; border-left: 3px solid var(--accent); background: #eff6ff; color: #1e3a5f; }
-      .notice { display: none; }
       .today-rhythm { display: grid; grid-template-columns: 1fr auto; align-items: end; gap: 16px; padding: 18px 20px; border-radius: 14px; background: #e6eee5; margin: 0 0 6px; }
       .today-rhythm .eyebrow { color: var(--leaf); font-size: 12px; font-weight: 800; letter-spacing: .08em; }
       .today-rhythm strong { display: block; font-size: 22px; margin-top: 2px; }
@@ -483,7 +482,7 @@
             <button class="template-card" type="button" onclick="applyGoalPreset('四六级')"><strong>四六级</strong><span>词汇、阅读、听力、写作与翻译</span></button>
           </div>
           <datalist id="goalSuggestions"><option value="国考"></option><option value="省考"></option><option value="考研"></option><option value="四六级"></option></datalist>
-          <div class="simple-setup"><div class="card"><h2>你现在主要想学什么？</h2><label class="field"><span>目标</span><input id="goalName" list="goalSuggestions" oninput="showGoalRecognition()" placeholder="例如：国考、考研、英语" /></label><p id="goalRecognition" class="recognition" aria-live="polite"></p><label class="field"><span>每天大概能学多久？</span><select id="dailyHours"><option value="0.5">30 分钟</option><option value="1">1 小时</option><option value="2">2 小时</option><option value="3" selected>3 小时</option><option value="4">4 小时以上</option></select></label><details><summary>还想设置更细的计划（可选）</summary><div class="row"><label class="field">考试/阶段日期<input id="examDate" type="date" /></label><label class="field">每周可用小时<input id="weeklyHours" type="number" min="0" step="0.5" placeholder="例如 20" /></label><label class="field">高效时段<select id="peakPeriod"><option>上午</option><option selected>下午</option><option>晚上</option><option>不固定</option></select></label></div></details><label class="row"><input type="checkbox" id="privacy" />我理解数据仅保存在本地</label><button type="button" onclick="saveGoal()">开始使用</button></div></div>
+          <div class="simple-setup"><div class="card"><h2>你现在主要想学什么？</h2><label class="field"><span>目标</span><input id="goalName" list="goalSuggestions" oninput="showGoalRecognition()" placeholder="例如：国考、考研、英语" /></label><p id="goalRecognition" class="recognition" aria-live="polite"></p><label class="field"><span>每天大概能学多久？</span><select id="dailyHours"><option value="0.5">30 分钟</option><option value="1">1 小时</option><option value="2">2 小时</option><option value="3" selected>3 小时</option><option value="4">4 小时以上</option></select></label><details><summary>还想设置更细的计划（可选）</summary><div class="row"><label class="field">考试/阶段日期<input id="examDate" type="date" /></label><label class="field">每周可用小时<input id="weeklyHours" type="number" min="0" step="0.5" placeholder="例如 20" /></label><label class="field">高效时段<select id="peakPeriod"><option>上午</option><option selected>下午</option><option>晚上</option><option>不固定</option></select></label></div></details><label class="row"><input type="checkbox" id="privacy" />我理解数据仅保存在本地</label><button type="button" onclick="saveGoal()">开始使用</button><button class="secondary" type="button" onclick="switchGoal()">切换目标（清空重来）</button></div></div>
         </div>
       </section>
       <section class="screen" id="screenLibrary" hidden>
@@ -491,7 +490,7 @@
         <div class="grid">
           <section>
             <div class="card"><h2>科目与资料角色</h2><div class="row"><label class="field">科目<input id="subjectName" placeholder="例如：行测·资料分析" /></label><button onclick="addSubject()">添加科目</button></div><div id="subjectList"></div><div class="row"><label class="field">资料名称<input id="materialName" placeholder="例如：你的教材、课程或题册" /></label><label class="field">关联科目<select id="materialSubject"></select></label><label class="field">角色<select id="materialRole"><option value="primary">主资料</option><option value="secondary">辅助资料</option><option value="paused">暂停并用</option></select></label><button onclick="addMaterial()">保存资料</button></div><p class="small">每科仅一个主资料。带“请替换”的内容只是占位，请换成你真实使用的资料。</p><div id="materialList"></div></div>
-            <div class="card"><h2>今天要做什么</h2><p class="small">先写清楚做什么、做到哪里。步骤和复盘可以稍后补，不阻碍开始。</p><div class="row"><label class="field">科目<select id="taskSubject"></select></label><label class="field">资料<select id="taskMaterial"></select></label><label class="field">优先级<select id="priority"><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></label></div><div class="row"><label class="field">任务名称<input id="knowledgePoint" placeholder="例如：资料分析｜增长率" /></label><label class="field">完成标准<input id="quantity" placeholder="例如：计时完成 5 题并订正" /></label><label class="field">预计分钟<input id="minutes" type="number" min="1" value="45" /></label></div><details><summary>补充执行步骤与复盘要求（可选）</summary><label class="field">怎么做<textarea id="steps" rows="2" placeholder="例如：先计时作答，再核对并记录错因"></textarea></label><label class="field">做完记录什么<textarea id="review" rows="2" placeholder="例如：记录一个错因和一个可复用方法"></textarea></label></details><button onclick="addTask()">加入今天</button></div>
+            <div class="card"><h2>今天要做什么</h2><p class="small">先写清楚做什么、做到哪里。步骤和复盘可以稍后补，不阻碍开始。</p><div class="row"><label class="field">科目<select id="taskSubject"></select></label><label class="field">资料<select id="taskMaterial"></select></label><label class="field">优先级<select id="priority"><option value="high">高</option><option value="medium">中</option><option value="low">低</option></select></label></div><div class="row"><label class="field">任务名称<input id="knowledgePoint" placeholder="例如：资料分析｜增长率" /></label><label class="field">完成标准<input id="quantity" placeholder="例如：计时完成 5 题并订正" /></label><label class="field">预计分钟<input id="minutes" type="number" min="1" max="1440" value="45" /></label></div><details><summary>补充执行步骤与复盘要求（可选）</summary><label class="field">怎么做<textarea id="steps" rows="2" placeholder="例如：先计时作答，再核对并记录错因"></textarea></label><label class="field">做完记录什么<textarea id="review" rows="2" placeholder="例如：记录一个错因和一个可复用方法"></textarea></label></details><button onclick="addTask()">加入今天</button></div>
           </section>
           <aside>
             <div class="card"><h2>版本记录</h2><ul id="versions" class="history small"></ul></div>
@@ -725,6 +724,12 @@
         const offset = value.getTimezoneOffset() * 60000;
         return new Date(value.getTime() - offset).toISOString().slice(0, 10);
       };
+      const tomorrow = () => {
+        const value = new Date();
+        value.setDate(value.getDate() + 1);
+        const offset = value.getTimezoneOffset() * 60000;
+        return new Date(value.getTime() - offset).toISOString().slice(0, 10);
+      };
       const uid = (p) =>
         p + "-" + Date.now() + "-" + Math.random().toString(36).slice(2, 6);
       const isSafeId = (value) =>
@@ -758,7 +763,11 @@
       }
       let state = loadState();
       function save() {
-        localStorage.setItem(KEY, JSON.stringify(state));
+        try {
+          localStorage.setItem(KEY, JSON.stringify(state));
+        } catch (e) {
+          toast("本地存储不可用或已满，本次更改不会被保存。");
+        }
         render();
       }
       function showScreen(screen) {
@@ -918,10 +927,11 @@
         if (!STARTER_TEMPLATES[preset] || !state.subjects.length) return false;
         let changed = false;
         state.subjects.forEach((subject) => {
-          const hasUsableMaterial = state.materials.some(
-            (item) => item.subjectId === subject.id && item.role !== "paused",
+          // 仅当该科完全没有任何资料时补占位；用户全部暂停资料是明确意图，不对抗
+          const hasAnyMaterial = state.materials.some(
+            (item) => item.subjectId === subject.id,
           );
-          if (hasUsableMaterial) return;
+          if (hasAnyMaterial) return;
           const suffix = preset === "四六级" ? "教材/题册" : "教材/课程";
           state.materials.push({
             id: uid("m"),
@@ -1071,8 +1081,10 @@
           st = stepsField.value.trim(),
           r = reviewField.value.trim(),
           min = +minutesField.value;
-        if (!sid || !k || !q || !min)
-          return toast("请填写科目、任务名称、完成标准和预计时间。");
+        if (!sid || !k || !q)
+          return toast("请填写科目、任务名称和完成标准。");
+        if (!(min > 0 && min <= 1440))
+          return toast("预计分钟需在 1–1440 之间。");
         state.tasks.push({
           id: uid("t"),
           subjectId: sid,
@@ -1212,9 +1224,7 @@
             adjustingKind === "blocked" ? "blocked" : "postponed";
         let changes = [];
         if (mode === "delay") {
-          t.scheduledDate = new Date(Date.now() + 864e5)
-            .toISOString()
-            .slice(0, 10);
+          t.scheduledDate = tomorrow();
           t.status = adjustedStatus;
           changes.push(`任务顺延至 ${t.scheduledDate}`);
         } else if (mode === "split") {
@@ -1224,9 +1234,7 @@
             quantity: "第二段：" + t.quantity,
             minutes: Math.ceil(t.minutes / 2),
             status: "todo",
-            scheduledDate: new Date(Date.now() + 864e5)
-              .toISOString()
-              .slice(0, 10),
+            scheduledDate: tomorrow(),
             events: [],
           };
           t.quantity = "第一段：" + t.quantity;
@@ -1340,6 +1348,22 @@
           "postponed",
           "blocked",
         ]);
+        const versionSources = new Set([
+          "initial",
+          "confirmed-replan",
+          "starter-material-repair",
+        ]);
+        if (
+          !d.planVersions.every(
+            (v) =>
+              isSafeId(v?.id) &&
+              typeof v.createdAt === "string" &&
+              versionSources.has(v.source) &&
+              Array.isArray(v.changes) &&
+              v.changes.every((c) => typeof c === "string" && c.trim()),
+          )
+        )
+          return false;
         return d.tasks.every(
           (t) =>
             isSafeId(t?.id) &&

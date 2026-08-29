@@ -21,7 +21,8 @@
         "examDate",
         "weeklyHours",
         "dailyHours",
-        "peakPeriod"
+        "peakPeriod",
+        "officialStatus"
       ],
       "properties": {
         "name": { "type": "string", "maxLength": 120 },
@@ -41,7 +42,7 @@
         "type": "object",
         "required": ["id", "name"],
         "properties": {
-          "id": { "type": "string", "minLength": 1, "maxLength": 80 },
+          "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
           "name": { "type": "string", "minLength": 1, "maxLength": 120 }
         }
       }
@@ -52,8 +53,8 @@
         "type": "object",
         "required": ["id", "subjectId", "name", "role"],
         "properties": {
-          "id": { "type": "string" },
-          "subjectId": { "type": "string" },
+          "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
+          "subjectId": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
           "name": { "type": "string", "minLength": 1, "maxLength": 200 },
           "role": { "enum": ["primary", "secondary", "paused"] }
         }
@@ -74,11 +75,12 @@
           "priority",
           "minutes",
           "status",
-          "scheduledDate"
+          "scheduledDate",
+          "events"
         ],
         "properties": {
-          "id": { "type": "string" },
-          "subjectId": { "type": "string" },
+          "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
+          "subjectId": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
           "materialId": { "type": "string" },
           "knowledgePoint": {
             "type": "string",
@@ -97,7 +99,21 @@
           "status": {
             "enum": ["todo", "in-progress", "completed", "postponed", "blocked"]
           },
-          "scheduledDate": { "type": "string", "format": "date" }
+          "scheduledDate": { "type": "string", "format": "date" },
+          "events": {
+            "type": "array",
+            "description": "任务事件流水（开始/完成/撤销/调整），由应用自动写入。",
+            "items": {
+              "type": "object",
+              "required": ["at", "type"],
+              "properties": {
+                "at": { "type": "string", "format": "date-time" },
+                "type": { "type": "string" },
+                "reason": { "type": "string" },
+                "mode": { "type": "string" }
+              }
+            }
+          }
         }
       }
     },
@@ -107,8 +123,10 @@
         "type": "object",
         "required": ["id", "createdAt", "source", "changes"],
         "properties": {
+          "id": { "type": "string", "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$" },
+          "createdAt": { "type": "string" },
           "source": { "enum": ["initial", "confirmed-replan", "starter-material-repair"] },
-          "changes": { "type": "array" }
+          "changes": { "type": "array", "items": { "type": "string", "minLength": 1 } }
         }
       }
     },

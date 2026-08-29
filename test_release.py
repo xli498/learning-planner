@@ -1,5 +1,5 @@
-"""Static release smoke test: stdlib only. Run after serving directory on port 8780."""
-import json, urllib.request
+"""Static release smoke test: stdlib only. Run with `python3 test_release.py`."""
+import json
 from pathlib import Path
 root=Path(__file__).parent
 html=(root/'index.html').read_text(encoding='utf-8')
